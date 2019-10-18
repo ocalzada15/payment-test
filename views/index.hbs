@@ -1,0 +1,37 @@
+
+
+
+
+<div id="dropin-wrapper">
+  <div id="checkout-message"></div>
+  <div id="dropin-container"></div>
+  
+  <button id="submit-button">Submit payment</button>
+</div>
+<script>
+    var button = document.querySelector('#submit-button')
+
+    braintree.dropin.create({
+        // key
+        authorization: '',
+        container: '#dropin-container'
+    }, function(createErr, instance) {
+        button.addEventListener('click', function() {
+            instance.requestPaymentMethod(function(requestPaymentMethodErr, payload) {
+                console.log(payload)
+                $.ajax({
+                    type: 'POST',
+                    url: '/checkout',
+                    data: {'paymentMethodNonce': payload.nonce}
+                }).done(function(result) {
+                    if (result.success) {
+                           $('#checkout-message').html('<h1>Success</h1>');
+                    } else {
+                        console.log(result);
+                          $('#checkout-message').html('<h1>Error</h1><p>Check your console.</p>');
+                    }
+                })
+            })
+        })
+    })
+</script>
